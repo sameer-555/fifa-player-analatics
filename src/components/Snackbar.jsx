@@ -1,6 +1,5 @@
 import React,{useEffect} from 'react';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
@@ -12,15 +11,9 @@ export default function CustomizedSnackbars({message,type}) {
   const [open, setOpen] = React.useState(false);
 
   useEffect(()=>{
-    console.log('----000---')
     if(message && type)
     setOpen(true);
   },[message,type])
-
-
-  const handleClick = () => {
-    setOpen(true);
-  };
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
