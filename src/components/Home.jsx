@@ -1,6 +1,5 @@
 import React, { useState,useEffect } from "react";
 import PlayerCard from './PlayerCard'
-import {appHistory} from '../utils/utils-history'
 import axios from "axios";
 import Grid from '@material-ui/core/Grid';
 import Pagination from '@mui/material/Pagination';
@@ -8,16 +7,11 @@ import Stack from '@mui/material/Stack';
 import CustomizedSnackbars from './Snackbar'
 
 
-function Home({redirect=false}){
+function Home(){
     const [players,setPlayers] = useState([])
     const [count,setCount] = useState(0)
     const [offset,setOffset] = useState(10)
     const [customMessage,setCustomMessage] = useState({message:'',type:''})
-    const redirectFunc = () => {
-        if (redirect) {
-            appHistory.push(`/books/${redirect}`);
-        }
-    };
 
     useEffect(()=>{
         const getPlayers = async() =>{
@@ -29,10 +23,15 @@ function Home({redirect=false}){
     },[offset])
 
     const deletePlayer = async(id) => {
-        const deleted_player = await axios.delete(`${process.env.REACT_APP_URL}/player/${id}`)
-        const update_players = players.filter((element)=> element.player_id !== id)
-        setPlayers(update_players)
-        console.log(deleted_player)
+        try{
+            const deleted_player = await axios.delete(`${process.env.REACT_APP_URL}/player/${id}`)
+            const update_players = players.filter((element)=> element.player_id !== id)
+            setPlayers(update_players)
+            customizedMessage(`${deleted_player.data.player_id}(${deleted_player.data.name}) successfully deleted`,"success")
+        }catch(err){
+            customizedMessage(`Some error occured while deleting player ${id}`,"error")
+        }
+
     }
 
     const handlePagination = (e,value) => {
@@ -40,7 +39,6 @@ function Home({redirect=false}){
     }
 
     const updatePlayer = async(updated_object) => {
-        console.log(updated_object)
         if(Object.keys(updated_object).length !== 1){
             for (let member in updated_object) {
                 if (!updated_object[member]){
@@ -75,11 +73,11 @@ function Home({redirect=false}){
     return (
         <>
         <Stack spacing={2} style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+            <Grid container  columns={{ xs: 4, sm: 8, md: 12 }}>
             {players.length > 0 ? players.map((player) => {
                 return (
                 <Grid item xs={2} sm={4} md={4} key={player.player_id} >
-                    <PlayerCard player={player} key={player.player_id} deletePlayer={deletePlayer}  updatePlayer={updatePlayer} onClick={() => redirectFunc()}/>
+                    <PlayerCard player={player} key={player.player_id} deletePlayer={deletePlayer}  updatePlayer={updatePlayer}/>
                 </Grid>
                 )
             }):<p>No players found</p>}
